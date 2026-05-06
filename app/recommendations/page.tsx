@@ -15,7 +15,7 @@ async function getMatches() {
     .order('score', { ascending: false });
 
   if (error) console.error(error);
-  return (data ?? []) as MatchRow[];
+  return (data ?? []) as unknown as MatchRow[];
 }
 
 type MatchRow = {

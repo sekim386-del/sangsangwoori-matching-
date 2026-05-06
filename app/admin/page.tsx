@@ -15,9 +15,9 @@ async function getAdminData() {
   ]);
 
   const matchedIds = new Set((allMatchIds ?? []).map((m: { senior_id: string }) => m.senior_id));
-  const unmatched = (allSeniors ?? []).filter((s: { id: string }) => !matchedIds.has(s.id));
-  const pending  = (matches ?? []).filter((m: { status: string }) => m.status === 'pending');
-  const assigned = (matches ?? []).filter((m: { status: string }) => m.status === 'assigned');
+  const unmatched = ((allSeniors ?? []) as unknown[]).filter((s) => !matchedIds.has((s as { id: string }).id));
+  const pending  = ((matches ?? []) as unknown[]).filter((m) => (m as { status: string }).status === 'pending');
+  const assigned = ((matches ?? []) as unknown[]).filter((m) => (m as { status: string }).status === 'assigned');
 
   return { unmatched, pending, assigned };
 }

@@ -42,3 +42,8 @@ next-env.d.ts
 
 # playwright mcp artifacts
 .playwright-mcp/
+
+# test screenshots
+*.png
+
+.vercel

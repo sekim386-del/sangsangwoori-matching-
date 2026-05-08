@@ -17,10 +17,31 @@ export default function RegisterForm() {
     {},
   );
 
+  if (state?.success && state.seniorId) {
+    return (
+      <div
+        data-testid="success-box"
+        className="bg-green-50 border-2 border-green-400 text-green-700 rounded-xl px-5 py-6 text-xl font-semibold flex flex-col gap-4"
+      >
+        <p>등록이 완료되었습니다</p>
+        <a
+          data-testid="success-link"
+          href={`/recommendations?senior_id=${state.seniorId}`}
+          className="inline-block bg-green-600 text-white text-xl font-bold py-3 px-6 rounded-xl hover:bg-green-700 transition-colors text-center"
+        >
+          추천 목록 보기
+        </a>
+      </div>
+    );
+  }
+
   return (
     <form action={formAction} className="flex flex-col gap-8">
       {state?.error && (
-        <div className="bg-red-50 border-2 border-red-400 text-red-700 rounded-xl px-5 py-4 text-xl font-semibold">
+        <div
+          data-testid="error-box"
+          className="bg-red-50 border-2 border-red-400 text-red-700 rounded-xl px-5 py-4 text-xl font-semibold"
+        >
           {state.error}
         </div>
       )}
@@ -28,7 +49,7 @@ export default function RegisterForm() {
       <div className="flex flex-col gap-2">
         <label htmlFor="name" className={labelCls}>이름</label>
         <input
-          id="name" name="name" type="text" required
+          id="name" name="name" type="text"
           placeholder="홍길동"
           className={inputCls}
         />

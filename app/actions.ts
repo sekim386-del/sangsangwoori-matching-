@@ -1,12 +1,11 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { calculateScore } from '@/lib/matching';
 import type { Senior, Job, MatchStatus } from '@/lib/types';
 
-export type RegisterState = { error?: string };
+export type RegisterState = { error?: string; success?: boolean; seniorId?: string };
 
 export async function registerSenior(
   _prev: RegisterState,
@@ -48,7 +47,8 @@ export async function registerSenior(
     }
   }
 
-  redirect('/recommendations');
+  revalidatePath('/recommendations');
+  return { success: true, seniorId: senior.id };
 }
 
 export async function updateMatchStatus(matchId: string, status: MatchStatus) {

@@ -43,6 +43,10 @@ next-env.d.ts
 # playwright mcp artifacts
 .playwright-mcp/
 
+# playwright generated reports / results
+/playwright-report/
+/test-results/
+
 # test screenshots
 *.png
 

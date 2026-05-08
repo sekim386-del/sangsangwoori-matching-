@@ -8,6 +8,7 @@ type MatchRow = {
   id: string;
   score: number;
   status: string;
+  senior_id: string;
   seniors: { name: string; region: string; desired_job: string };
   jobs: { title: string; region: string };
 };
@@ -46,6 +47,12 @@ export default function AdminBoard({
             <div key={s.id} className="bg-white border border-red-200 rounded-xl px-4 py-3">
               <p className="text-xl font-bold text-gray-800">{s.name}</p>
               <p className="text-lg text-gray-500">{s.region} · {s.desired_job}</p>
+              <a
+                href={`/recommendations?senior_id=${s.id}`}
+                className="mt-2 inline-block text-base text-blue-600 hover:underline font-medium"
+              >
+                상세 보기 →
+              </a>
             </div>
           ))
         )}
@@ -147,8 +154,18 @@ function MatchCard({
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl px-4 py-3 shadow-sm">
-      <p className="text-xl font-bold text-gray-800">{match.seniors.name}</p>
-      <p className="text-lg text-gray-500">{match.seniors.region} · {match.seniors.desired_job}</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-xl font-bold text-gray-800">{match.seniors.name}</p>
+          <p className="text-lg text-gray-500">{match.seniors.region} · {match.seniors.desired_job}</p>
+        </div>
+        <a
+          href={`/recommendations?senior_id=${match.senior_id}`}
+          className="text-sm text-blue-600 hover:underline font-medium whitespace-nowrap ml-2 mt-1"
+        >
+          상세 보기
+        </a>
+      </div>
       <p className="text-lg text-gray-700 mt-1">
         ↔ {match.jobs.title}
         <span className="text-gray-400 ml-1">({match.jobs.region})</span>

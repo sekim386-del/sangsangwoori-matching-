@@ -3,6 +3,15 @@ import { supabase } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
+async function getSeniorName(seniorId: string): Promise<string | null> {
+  const { data } = await supabase
+    .from('seniors')
+    .select('name')
+    .eq('id', seniorId)
+    .maybeSingle();
+  return (data as { name: string } | null)?.name ?? null;
+}
+
 async function getMatches(seniorId?: string) {
   let query = supabase
     .from('matches')
@@ -44,6 +53,12 @@ function scoreBadgeCls(tier: 'gold' | 'blue' | 'gray') {
   return 'text-gray-600 bg-gray-100 border-gray-300';
 }
 
+function scoreTierLabel(tier: 'gold' | 'blue' | 'gray') {
+  if (tier === 'gold') return '매우 적합';
+  if (tier === 'blue') return '적합';
+  return '보통';
+}
+
 const STATUS_LABEL: Record<string, string> = {
   pending:  '매칭 대기',
   assigned: '배정 완료',
@@ -56,19 +71,27 @@ export default async function RecommendationsPage({
   searchParams: Promise<{ senior_id?: string }>;
 }) {
   const { senior_id } = await searchParams;
-  const matches = await getMatches(senior_id);
+  const [matches, seniorName] = await Promise.all([
+    getMatches(senior_id),
+    senior_id ? getSeniorName(senior_id) : Promise.resolve(null),
+  ]);
+
+  const pageTitle = seniorName
+    ? `${seniorName} 님께 맞는 일자리`
+    : '자동 매칭 추천 목록';
 
   return (
     <div>
       <div className="flex items-end justify-between mb-2">
-        <h1 className="text-4xl font-bold text-gray-900">자동 매칭 추천 목록</h1>
+        <h1 className="text-4xl font-bold text-gray-900">{pageTitle}</h1>
         <span className="text-xl text-gray-400">총 {matches.length}건</span>
       </div>
       <p className="text-xl text-gray-500 mb-10">매칭 점수 높은 순으로 표시됩니다.</p>
 
       {matches.length === 0 ? (
         <div data-testid="no-match" className="text-center py-20 flex flex-col items-center gap-6">
-          <p className="text-2xl text-gray-400">현재 매칭되는 일자리가 없습니다</p>
+          <p className="text-2xl text-gray-500">현재 매칭되는 일자리가 없습니다.</p>
+          <p className="text-xl text-gray-400">담당자가 직접 연락드리니 잠시만 기다려 주세요.</p>
           <Link
             href="/register"
             className="bg-blue-700 text-white text-2xl font-semibold py-4 px-10 rounded-2xl hover:bg-blue-800 transition-colors"
@@ -108,6 +131,7 @@ export default async function RecommendationsPage({
                 >
                   <span className="text-4xl font-extrabold leading-none">{m.score}</span>
                   <span className="text-base font-normal">점</span>
+                  <span className="text-sm font-bold">{scoreTierLabel(tier)}</span>
                 </div>
               </li>
             );

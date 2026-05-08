@@ -32,32 +32,7 @@ export default function AdminBoard({
   rejected: MatchRow[];
 }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <Column
-        label="미매칭"
-        count={unmatched.length}
-        border="border-red-300"
-        header="bg-red-100 text-red-700"
-        body="bg-red-50"
-      >
-        {unmatched.length === 0 ? (
-          <Empty text="미매칭 시니어 없음" />
-        ) : (
-          unmatched.map((s) => (
-            <div key={s.id} className="bg-white border border-red-200 rounded-xl px-4 py-3">
-              <p className="text-xl font-bold text-gray-800">{s.name}</p>
-              <p className="text-lg text-gray-500">{s.region} · {s.desired_job}</p>
-              <a
-                href={`/recommendations?senior_id=${s.id}`}
-                className="mt-2 inline-block text-base text-blue-600 hover:underline font-medium"
-              >
-                상세 보기 →
-              </a>
-            </div>
-          ))
-        )}
-      </Column>
-
+    <div>
       <Column
         label="매칭 대기"
         count={pending.length}
@@ -68,54 +43,16 @@ export default function AdminBoard({
         {pending.length === 0 ? (
           <Empty text="대기 중인 매칭 없음" />
         ) : (
-          pending.map((m) => (
-            <MatchCard
-              key={m.id}
-              match={m}
-              primaryAction={{ status: 'assigned', label: '배정 확정 →' }}
-              secondaryAction={{ status: 'rejected', label: '거절' }}
-            />
-          ))
-        )}
-      </Column>
-
-      <Column
-        label="배정 완료"
-        count={assigned.length}
-        border="border-green-300"
-        header="bg-green-100 text-green-700"
-        body="bg-green-50"
-      >
-        {assigned.length === 0 ? (
-          <Empty text="배정 완료된 매칭 없음" />
-        ) : (
-          assigned.map((m) => (
-            <MatchCard
-              key={m.id}
-              match={m}
-              primaryAction={{ status: 'pending', label: '← 대기로' }}
-            />
-          ))
-        )}
-      </Column>
-
-      <Column
-        label="거절됨"
-        count={rejected.length}
-        border="border-gray-300"
-        header="bg-gray-100 text-gray-600"
-        body="bg-gray-50"
-      >
-        {rejected.length === 0 ? (
-          <Empty text="거절된 매칭 없음" />
-        ) : (
-          rejected.map((m) => (
-            <MatchCard
-              key={m.id}
-              match={m}
-              primaryAction={{ status: 'pending', label: '← 대기로' }}
-            />
-          ))
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {pending.map((m) => (
+              <MatchCard
+                key={m.id}
+                match={m}
+                primaryAction={{ status: 'assigned', label: '배정 확정 →' }}
+                secondaryAction={{ status: 'rejected', label: '거절' }}
+              />
+            ))}
+          </div>
         )}
       </Column>
     </div>

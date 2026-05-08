@@ -23,13 +23,15 @@ export default function AdminBoard({
   unmatched,
   pending,
   assigned,
+  rejected,
 }: {
   unmatched: SeniorRow[];
   pending: MatchRow[];
   assigned: MatchRow[];
+  rejected: MatchRow[];
 }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <Column
         label="미매칭"
         count={unmatched.length}
@@ -60,7 +62,12 @@ export default function AdminBoard({
           <Empty text="대기 중인 매칭 없음" />
         ) : (
           pending.map((m) => (
-            <MatchCard key={m.id} match={m} nextStatus="assigned" nextLabel="배정 확정 →" />
+            <MatchCard
+              key={m.id}
+              match={m}
+              primaryAction={{ status: 'assigned', label: '배정 확정 →' }}
+              secondaryAction={{ status: 'rejected', label: '거절' }}
+            />
           ))
         )}
       </Column>
@@ -76,7 +83,31 @@ export default function AdminBoard({
           <Empty text="배정 완료된 매칭 없음" />
         ) : (
           assigned.map((m) => (
-            <MatchCard key={m.id} match={m} nextStatus="pending" nextLabel="← 대기로" />
+            <MatchCard
+              key={m.id}
+              match={m}
+              primaryAction={{ status: 'pending', label: '← 대기로' }}
+            />
+          ))
+        )}
+      </Column>
+
+      <Column
+        label="거절됨"
+        count={rejected.length}
+        border="border-gray-300"
+        header="bg-gray-100 text-gray-600"
+        body="bg-gray-50"
+      >
+        {rejected.length === 0 ? (
+          <Empty text="거절된 매칭 없음" />
+        ) : (
+          rejected.map((m) => (
+            <MatchCard
+              key={m.id}
+              match={m}
+              primaryAction={{ status: 'pending', label: '← 대기로' }}
+            />
           ))
         )}
       </Column>
@@ -103,10 +134,14 @@ function Column({
   );
 }
 
+type MatchCardAction = { status: MatchStatus; label: string };
+
 function MatchCard({
-  match, nextStatus, nextLabel,
+  match, primaryAction, secondaryAction,
 }: {
-  match: MatchRow; nextStatus: MatchStatus; nextLabel: string;
+  match: MatchRow;
+  primaryAction: MatchCardAction;
+  secondaryAction?: MatchCardAction;
 }) {
   const [isPending, startTransition] = useTransition();
 
@@ -120,13 +155,24 @@ function MatchCard({
       </p>
       <div className="flex items-center justify-between mt-3">
         <span className="text-lg font-bold text-blue-700">{match.score}점</span>
-        <button
-          disabled={isPending}
-          onClick={() => startTransition(() => updateMatchStatus(match.id, nextStatus))}
-          className="text-base bg-gray-100 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-lg text-gray-700 transition-colors disabled:opacity-40"
-        >
-          {isPending ? '처리 중…' : nextLabel}
-        </button>
+        <div className="flex gap-2">
+          {secondaryAction && (
+            <button
+              disabled={isPending}
+              onClick={() => startTransition(() => updateMatchStatus(match.id, secondaryAction.status))}
+              className="text-base bg-gray-100 hover:bg-red-500 hover:text-white px-3 py-1.5 rounded-lg text-gray-500 transition-colors disabled:opacity-40"
+            >
+              {isPending ? '…' : secondaryAction.label}
+            </button>
+          )}
+          <button
+            disabled={isPending}
+            onClick={() => startTransition(() => updateMatchStatus(match.id, primaryAction.status))}
+            className="text-base bg-gray-100 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-lg text-gray-700 transition-colors disabled:opacity-40"
+          >
+            {isPending ? '처리 중…' : primaryAction.label}
+          </button>
+        </div>
       </div>
     </div>
   );

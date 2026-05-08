@@ -9,7 +9,7 @@ async function getAdminData() {
     supabase
       .from('matches')
       .select('id, score, status, senior_id, seniors(name, region, desired_job), jobs(title, region)')
-      .in('status', ['pending', 'assigned'])
+      .in('status', ['pending', 'assigned', 'rejected'])
       .order('score', { ascending: false }),
     supabase.from('matches').select('senior_id'),
   ]);
@@ -18,28 +18,31 @@ async function getAdminData() {
   const unmatched = ((allSeniors ?? []) as unknown[]).filter((s) => !matchedIds.has((s as { id: string }).id));
   const pending  = ((matches ?? []) as unknown[]).filter((m) => (m as { status: string }).status === 'pending');
   const assigned = ((matches ?? []) as unknown[]).filter((m) => (m as { status: string }).status === 'assigned');
+  const rejected = ((matches ?? []) as unknown[]).filter((m) => (m as { status: string }).status === 'rejected');
 
-  return { unmatched, pending, assigned };
+  return { unmatched, pending, assigned, rejected };
 }
 
 export default async function AdminPage() {
-  const { unmatched, pending, assigned } = await getAdminData();
+  const { unmatched, pending, assigned, rejected } = await getAdminData();
 
   return (
     <div>
       <h1 className="text-4xl font-bold text-gray-900 mb-2">담당자 대시보드</h1>
       <p className="text-xl text-gray-500 mb-10">매칭 현황을 확인하고 관리합니다.</p>
 
-      <div className="grid grid-cols-3 gap-6 mb-10">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         <SummaryCard label="미매칭"   count={unmatched.length} color="text-red-600" />
         <SummaryCard label="매칭 대기" count={pending.length}  color="text-yellow-600" />
         <SummaryCard label="배정 완료" count={assigned.length} color="text-green-600" />
+        <SummaryCard label="거절됨"   count={rejected.length} color="text-gray-500" />
       </div>
 
       <AdminBoard
         unmatched={unmatched as never}
         pending={pending as never}
         assigned={assigned as never}
+        rejected={rejected as never}
       />
     </div>
   );
